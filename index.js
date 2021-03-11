@@ -6,7 +6,7 @@ const start = () => {
     inquirer.prompt([
         {
             type: 'list',
-            message: 'What would you like to do ',
+            message: 'What would you like to do ?',
             name: 'choice',
             choices: ['View All Employees', 'View All Employees By Department', 'View All Employees By Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager'],
         }]).then((answers) => {
@@ -18,8 +18,10 @@ const start = () => {
                     viewAllEmployeesByDept();
                     break;
                 case 'View All Employees By Manager':
+                    viewAllEmployeesByMng();
                     break;
                 case 'Add Employee':
+                    addEmployee();
                     break;
                 case 'Remove Employee':
                     break;
@@ -46,7 +48,16 @@ const viewAllEmployeesByDept = () => {
     connection.query(sql2, function (err, result) {
         console.table(result);
     });
+};
 
+const viewAllEmployeesByMng = () => {
+    var sql1 = "ALTER TABLE employeesByMng MODIFY COLUMN manager VARCHAR(30) FIRST";
+    connection.query(sql1, function (err, result) {
+    });
+    var sql2 = "SELECT*FROM employeesByMng ORDER BY manager DESC";
+    connection.query(sql2, function (err, result) {
+        console.table(result);
+    });
 };
 
 connection.connect((err) => {
