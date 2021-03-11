@@ -72,6 +72,17 @@ const selectRole = () => {
     return rolesArray;
 };
 
+let managersArray = [];
+const selectManager = () => {
+    connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function (err, res) {
+        if (err) throw err
+        for (var i = 0; i < res.length; i++) {
+            managersArray.push(res[i].last_name);
+        }
+
+    })
+    return managersArray;
+};
 connection.connect((err) => {
     if (err) throw err;
     start();
