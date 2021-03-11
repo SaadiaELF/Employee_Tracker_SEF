@@ -3,7 +3,7 @@ USE employee_db;
 
 CREATE TABLE department (
 id INTEGER(10) AUTO_INCREMENT NOT NULL,
-name VARCHAR(30) NOT NULL,
+department VARCHAR(30) NOT NULL,
 PRIMARY KEY (id)
 );
 
