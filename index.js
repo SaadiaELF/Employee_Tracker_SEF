@@ -15,6 +15,7 @@ const start = () => {
                     viewAllEmployees();
                     break;
                 case 'View All Employees By Department':
+                    viewAllEmployeesByDept();
                     break;
                 case 'View All Employees By Manager':
                     break;
@@ -31,10 +32,21 @@ const start = () => {
         });
 };
 const viewAllEmployees = () => {
-    var sql = "SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id";
+    var sql = "SELECT*FROM employees";
     connection.query(sql, function (err, result) {
         console.table(result);
     });
+};
+
+const viewAllEmployeesByDept = () => {
+    var sql1 = "ALTER TABLE employeesByDpt MODIFY COLUMN department VARCHAR(30) FIRST";
+    connection.query(sql1, function (err, result) {
+    });
+    var sql2 = "SELECT*FROM employeesByDpt ORDER BY department";
+    connection.query(sql2, function (err, result) {
+        console.table(result);
+    });
+
 };
 
 connection.connect((err) => {
