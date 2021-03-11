@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const connection = require('./config/connection.js');
+const cTable = require('console.table');
 
 const start = () => {
     inquirer.prompt([
@@ -11,7 +12,7 @@ const start = () => {
         }]).then((answers) => {
             switch (answers.choice) {
                 case 'View All Employees':
-                    console.log('test')
+                    viewAllEmployees();
                     break;
                 case 'View All Employees By Department':
                     break;
@@ -28,6 +29,12 @@ const start = () => {
             }
             connection.end();
         });
+};
+const viewAllEmployees = () => {
+    var sql = "SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id";
+    connection.query(sql, function (err, result) {
+        console.table(result);
+    });
 };
 
 connection.connect((err) => {
