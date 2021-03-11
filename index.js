@@ -8,7 +8,7 @@ const start = () => {
             type: 'list',
             message: 'What would you like to do ?',
             name: 'choice',
-            choices: ['View All Employees', 'View All Employees By Department', 'View All Employees By Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager'],
+            choices: ['View All Employees', 'View All Employees By Department', 'View All Employees By Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'Exit'],
         }]).then((answers) => {
             switch (answers.choice) {
                 case 'View All Employees':
@@ -29,34 +29,30 @@ const start = () => {
                     break;
                 case 'Update Employee Manager':
                     break;
+                case 'Exit':
+                    connection.end();
+                    break;
             }
-            
         });
 };
 const viewAllEmployees = () => {
-    var sql = "SELECT*FROM employees";
+    var sql = "DROP TABLE IF EXISTS employees; CREATE TABLE employees SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department, CONCAT(e.first_name, ' ' , e.last_name) AS manager FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id LEFT JOIN employee e on employee.manager_id = e.id;  SELECT*FROM employees"
     connection.query(sql, function (err, result) {
-        console.table(result);
+        console.table(result[2]);
     });
 };
 
 const viewAllEmployeesByDept = () => {
-    var sql1 = "ALTER TABLE employeesByDpt MODIFY COLUMN department VARCHAR(30) FIRST";
-    connection.query(sql1, function (err, result) {
-    });
-    var sql2 = "SELECT*FROM employeesByDpt ORDER BY department";
-    connection.query(sql2, function (err, result) {
-        console.table(result);
+    var sql = "DROP TABLE IF EXISTS employeesByDpt; CREATE TABLE employeesByDpt SELECT * FROM employees; ALTER TABLE employeesByDpt MODIFY COLUMN department VARCHAR(30) FIRST; SELECT*FROM employeesByDpt ORDER BY department";
+    connection.query(sql, function (err, result) {
+        console.table(result[3]);
     });
 };
 
 const viewAllEmployeesByMng = () => {
-    var sql1 = "ALTER TABLE employeesByMng MODIFY COLUMN manager VARCHAR(30) FIRST";
-    connection.query(sql1, function (err, result) {
-    });
-    var sql2 = "SELECT*FROM employeesByMng ORDER BY manager DESC";
-    connection.query(sql2, function (err, result) {
-        console.table(result);
+    var sql = "DROP TABLE IF EXISTS employeesByMng; CREATE TABLE employeesByMng SELECT * FROM employees; ALTER TABLE employeesByMng MODIFY COLUMN manager VARCHAR(30) FIRST; SELECT*FROM employeesByMng ORDER BY manager DESC";
+    connection.query(sql, function (err, result) {
+        console.table(result[3]);
     });
 };
 
@@ -67,7 +63,6 @@ const selectRole = () => {
         for (var i = 0; i < res.length; i++) {
             rolesArray.push(res[i].title);
         }
-
     })
     return rolesArray;
 };
@@ -77,14 +72,11 @@ const selectManager = () => {
     connection.query("SELECT first_name, last_name FROM employee WHERE manager_id = 0", function (err, res) {
         if (err) throw err
         for (var i = 0; i < res.length; i++) {
-            managersArray.push(res[i].last_name);
+            managersArray.push(`${res[i].first_name} ${res[i].last_name}`);
         }
     })
     return managersArray;
 };
-
-
-
 
 const addEmployee = () => {
     inquirer.prompt([
@@ -111,8 +103,8 @@ const addEmployee = () => {
             choices: selectManager(),
 
         }]).then((answers) => {
-            const roleId = selectRole().indexOf(answers.role) + 1
-            const managerId = selectManager().indexOf(answers.choice) + 1
+            const roleId = selectRole().indexOf(answers.roles) + 1
+            const managerId = selectManager().indexOf(answers.managers) + 1
             connection.query('INSERT INTO employee SET ?',
                 {
                     first_name: answers.first_name,
@@ -126,7 +118,6 @@ const addEmployee = () => {
                 }
             );
         });
-
 };
 
 connection.connect((err) => {

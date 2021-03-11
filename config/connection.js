@@ -2,6 +2,7 @@ const mysql = require('mysql');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
+    multipleStatements: true,
     host: process.env.DB_HOST,
     port: 3306,
     user: process.env.DB_USER,
@@ -9,7 +10,4 @@ const connection = mysql.createConnection({
     database: 'employee_db',
 });
 
-connection.connect((err) => {
-    if (err) throw err;
-    console.log(`connected as id ${connection.threadId}`);
-});
+module.exports = connection
