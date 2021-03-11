@@ -60,6 +60,18 @@ const viewAllEmployeesByMng = () => {
     });
 };
 
+let rolesArray = [];
+const selectRole = () => {
+    connection.query("SELECT * FROM role", function (err, res) {
+        if (err) throw err
+        for (var i = 0; i < res.length; i++) {
+            rolesArray.push(res[i].title);
+        }
+
+    })
+    return rolesArray;
+};
+
 connection.connect((err) => {
     if (err) throw err;
     start();
