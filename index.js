@@ -30,7 +30,7 @@ const start = () => {
                 case 'Update Employee Manager':
                     break;
             }
-            connection.end();
+            
         });
 };
 const viewAllEmployees = () => {
@@ -60,7 +60,7 @@ const viewAllEmployeesByMng = () => {
     });
 };
 
-let rolesArray = [];
+var rolesArray = [];
 const selectRole = () => {
     connection.query("SELECT * FROM role", function (err, res) {
         if (err) throw err
@@ -72,17 +72,63 @@ const selectRole = () => {
     return rolesArray;
 };
 
-let managersArray = [];
+var managersArray = [];
 const selectManager = () => {
-    connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function (err, res) {
+    connection.query("SELECT first_name, last_name FROM employee WHERE manager_id = 0", function (err, res) {
         if (err) throw err
         for (var i = 0; i < res.length; i++) {
             managersArray.push(res[i].last_name);
         }
-
     })
     return managersArray;
 };
+
+
+
+
+const addEmployee = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: "What is the employee's first name ?",
+            name: 'first_name',
+        },
+        {
+            type: 'input',
+            message: "What is the employee's last name ?",
+            name: 'last_name',
+        },
+        {
+            type: 'rawlist',
+            message: "What is the employee's role ?",
+            name: 'roles',
+            choices: selectRole(),
+        },
+        {
+            type: 'rawlist',
+            message: "Who is the employee's manager ?",
+            name: 'managers',
+            choices: selectManager(),
+
+        }]).then((answers) => {
+            const roleId = selectRole().indexOf(answers.role) + 1
+            const managerId = selectManager().indexOf(answers.choice) + 1
+            connection.query('INSERT INTO employee SET ?',
+                {
+                    first_name: answers.first_name,
+                    last_name: answers.last_name,
+                    role_id: roleId,
+                    manager_id: managerId,
+                },
+                (err) => {
+                    if (err) throw err;
+                    console.log(`${answers.first_name} ${answers.last_name} was successfully added to the database`);
+                }
+            );
+        });
+
+};
+
 connection.connect((err) => {
     if (err) throw err;
     start();
