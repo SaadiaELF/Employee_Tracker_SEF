@@ -38,7 +38,7 @@ const start = () => {
         });
 };
 const viewAllEmployees = () => {
-    var sql = "DROP TABLE IF EXISTS employees; CREATE TABLE employees SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department, CONCAT(e.first_name, ' ' , e.last_name) AS manager FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id LEFT JOIN employee e on employee.manager_id = e.id;  SELECT*FROM employees"
+    var sql = "DROP TABLE IF EXISTS employees; CREATE TABLE employees SELECT employee.id, CONCAT(employee.first_name, ' ' ,employee.last_name) AS name, role.title, role.salary, department.department, CONCAT(e.first_name, ' ' , e.last_name) AS manager FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id LEFT JOIN employee e on employee.manager_id = e.id;  SELECT*FROM employees ORDER BY id"
     connection.query(sql, function (err, result) {
         console.table(result[2]);
     });
@@ -93,13 +93,13 @@ const addEmployee = () => {
             name: 'last_name',
         },
         {
-            type: 'rawlist',
+            type: 'list',
             message: "What is the employee's role ?",
             name: 'roles',
             choices: selectRole(),
         },
         {
-            type: 'rawlist',
+            type: 'list',
             message: "Who is the employee's manager ?",
             name: 'managers',
             choices: selectManager(),
@@ -122,7 +122,7 @@ const addEmployee = () => {
         });
 };
 
-const removeEmployee = async () => {
+const removeEmployee = () => {
     let employeesArray = [];
     connection.query("SELECT id, CONCAT(first_name, ' ' , last_name) AS name FROM employee", function (err, employees) {
         if (err) throw err;
@@ -135,7 +135,8 @@ const removeEmployee = async () => {
                 name: 'employeeName',
                 type: 'list',
                 message: "What is the employee's role ?",
-                choices: employeesArray
+                choices: employeesArray,
+
             }]).then((answers) => {
                 const employeeId = employeesArray.indexOf(answers.employeeName) + 1;
                 connection.query('DELETE FROM employee WHERE ?',
@@ -149,6 +150,48 @@ const removeEmployee = async () => {
                 );
             });
 
+    });
+};
+
+const UpdateEmployeeRole = () => {
+    let employeesArray = [];
+    connection.query("SELECT id, CONCAT(first_name, ' ' , last_name) AS name FROM employee", function (err, employees) {
+        if (err) throw err;
+        for (i = 0; i < employees.length; i++) {
+            employeesArray.push(employees[i].name);
+        }
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: "Which employee's role do you want to update ?",
+                name: 'employeeName',
+                choices: employeesArray,
+
+            },
+            {
+                type: 'list',
+                message: "Please select the new role :",
+                name: 'employeeRole',
+                choices: selectRole(),
+
+            }]).then((answers) => {
+                const employeeId = employeesArray.indexOf(answers.employeeName) + 1;
+                const roleId = selectRole().indexOf(answers.employeeRole) + 1;
+                connection.query('UPDATE employee SET ? WHERE ?',
+                    [
+                        {
+                            role_id: roleId,
+                        },
+                        {
+                            id: employeeId,
+                        },
+                    ],
+                    (err) => {
+                        if (err) throw err;
+                        console.log(`An employee was successfully updated!`);
+                    }
+                );
+            });
     });
 };
 
