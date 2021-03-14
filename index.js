@@ -24,8 +24,10 @@ const start = () => {
                     addEmployee();
                     break;
                 case 'Remove Employee':
+                    removeEmployee();
                     break;
                 case 'Update Employee Role':
+                    UpdateEmployeeRole();
                     break;
                 case 'Update Employee Manager':
                     break;
@@ -103,8 +105,8 @@ const addEmployee = () => {
             choices: selectManager(),
 
         }]).then((answers) => {
-            const roleId = selectRole().indexOf(answers.roles) + 1
-            const managerId = selectManager().indexOf(answers.managers) + 1
+            const roleId = selectRole().indexOf(answers.roles) + 1;
+            const managerId = selectManager().indexOf(answers.managers) + 1;
             connection.query('INSERT INTO employee SET ?',
                 {
                     first_name: answers.first_name,
@@ -118,6 +120,36 @@ const addEmployee = () => {
                 }
             );
         });
+};
+
+const removeEmployee = async () => {
+    let employeesArray = [];
+    connection.query("SELECT id, CONCAT(first_name, ' ' , last_name) AS name FROM employee", function (err, employees) {
+        if (err) throw err;
+        for (i = 0; i < employees.length; i++) {
+            employeesArray.push(employees[i].name);
+        }
+
+        inquirer.prompt([
+            {
+                name: 'employeeName',
+                type: 'list',
+                message: "What is the employee's role ?",
+                choices: employeesArray
+            }]).then((answers) => {
+                const employeeId = employeesArray.indexOf(answers.employeeName) + 1;
+                connection.query('DELETE FROM employee WHERE ?',
+                    {
+                        id: employeeId,
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        console.log(`An employee was successfully deleted from the database`);
+                    }
+                );
+            });
+
+    });
 };
 
 connection.connect((err) => {
