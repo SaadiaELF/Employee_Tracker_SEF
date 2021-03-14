@@ -30,5 +30,7 @@ INDEX (role_id),
 INDEX (manager_id),
 FOREIGN KEY (role_id)
 REFERENCES role(id)
-ON DELETE CASCADE
+ON DELETE CASCADE,
+FOREIGN KEY (manager_id)
+REFERENCES employee(id)
 );

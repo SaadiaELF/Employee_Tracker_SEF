@@ -22,6 +22,6 @@ VALUES
 ('Mary', 'Chloe', 1, 0) ,
 ('Ahmed', 'Daif', 3, 0) ,
 ('John', 'Drew', 6, 0) ,
-('Petter', 'Davies', 5, 7) ,
+('Peter', 'Davies', 5, 7) ,
 ('Saadia', 'Youssef', 7, 4) ,
 ('Mai', 'Umar', 4, 0) ;
